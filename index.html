@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arbeitskleidung bestellen – Demo</title>
+<style>
+:root {
+  --papier:#EDF1F4; --karte:#FFFFFF; --tinte:#16212C; --leise:#586674; --linie:#D2DAE2;
+  --feld:#FFFFFF; --feld-rand:#B9C4CF; --feld-aus:#B9C4CF;
+  --marke:#23405E; --marke-dunkel:#172D44; --akzent:#23405E; --akzent-hell:#E3EAF1;
+  --band:#F4C20D; --rot:#A8261D; --rot-hell:#FBEAE8; --rot-text:#6E1A13; --rot-rand:#E5B4AF;
+  --ok-bg:#E6F1E9; --ok-text:#1D4A2A; --ok-rand:#B5D3BE; --warn-bg:#FFF1C2; --warn-text:#6B5100;
+  --demo-bg:#F4C20D; --demo-text:#1B1B1B;
+  --schrift-titel:"Bahnschrift","DIN Alternate","DIN 2014","Barlow","Roboto Condensed","Arial Narrow",system-ui,sans-serif;
+  --schrift-text:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papier:#0E151C; --karte:#151F29; --tinte:#E4EAF0; --leise:#95A3B1; --linie:#2A3846;
+    --feld:#0F1821; --feld-rand:#3A4A5A; --feld-aus:#3A4A5A;
+    --marke:#24425F; --marke-dunkel:#0A1520; --akzent:#9CC0E6; --akzent-hell:#1D3247;
+    --rot:#E2685E; --rot-hell:#3A1C1A; --rot-text:#F3B5AE; --rot-rand:#6A2F2A;
+    --ok-bg:#16301F; --ok-text:#A9D8B6; --ok-rand:#2B5A3A; --warn-bg:#3A3110; --warn-text:#F1D77A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papier:#0E151C; --karte:#151F29; --tinte:#E4EAF0; --leise:#95A3B1; --linie:#2A3846;
+  --feld:#0F1821; --feld-rand:#3A4A5A; --feld-aus:#3A4A5A;
+  --marke:#24425F; --marke-dunkel:#0A1520; --akzent:#9CC0E6; --akzent-hell:#1D3247;
+  --rot:#E2685E; --rot-hell:#3A1C1A; --rot-text:#F3B5AE; --rot-rand:#6A2F2A;
+  --ok-bg:#16301F; --ok-text:#A9D8B6; --ok-rand:#2B5A3A; --warn-bg:#3A3110; --warn-text:#F1D77A;
+  color-scheme: dark;
+}
+:root { box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+html { scroll-padding-top:env(safe-area-inset-top,0px); -webkit-text-size-adjust:100%; background:var(--papier); }
+*, *::before, *::after { box-sizing:border-box; }
+body { margin:0; background:var(--papier); color:var(--tinte); font:16px/1.5 var(--schrift-text); }
+h1,h2,h3 { font-family:var(--schrift-titel); line-height:1.15; margin:0; }
+a { color:var(--akzent); }
+img { max-width:100%; }
+:focus-visible { outline:3px solid var(--band); outline-offset:2px; }
+[hidden] { display:none !important; }
+
+/* Demo-Leiste */
+.demo-leiste { background:var(--demo-bg); color:var(--demo-text); }
+.demo-innen { max-width:1120px; margin:0 auto; padding:8px 24px; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; font-size:14px; }
+.demo-innen strong { font-family:var(--schrift-titel); font-size:15px; }
+.demo-schalter { margin-left:auto; display:flex; gap:4px; background:rgba(0,0,0,.1); border-radius:6px; padding:3px; }
+.demo-schalter button { border:0; background:transparent; color:var(--demo-text); font:600 14px var(--schrift-titel); padding:6px 12px; border-radius:4px; cursor:pointer; }
+.demo-schalter button[aria-pressed="true"] { background:#fff; color:#16212C; }
+
+/* Kopf */
+.kopf { background:var(--marke); color:#fff; }
+.kopf-innen { max-width:1120px; margin:0 auto; padding:28px 24px 30px; }
+.firma { margin:0 0 6px; font-family:var(--schrift-titel); font-size:15px; opacity:.8; }
+.kopf h1 { font-size:clamp(30px,5vw,46px); font-weight:600; font-stretch:85%; letter-spacing:-.01em; }
+.kopf-info { margin:10px 0 0; font-size:15px; opacity:.85; }
+.trenner { margin:0 .5em; opacity:.5; }
+.kopf.admin .kopf-innen { max-width:1240px; padding:18px 24px; }
+.kopf.admin h1 { font-size:26px; }
+
+/* Layout */
+.layout { max-width:1120px; margin:0 auto; padding:28px 24px 64px; display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:40px; align-items:start; }
+.schmal { max-width:760px; margin:0 auto; padding:28px 24px 64px; }
+.einleitung { margin:0 0 24px; max-width:62ch; color:var(--leise); }
+.schritt { background:var(--karte); border:1px solid var(--linie); border-radius:8px; padding:24px; margin-bottom:20px; }
+.schritt h2 { font-size:22px; font-weight:600; margin-bottom:18px; display:flex; align-items:center; gap:12px; }
+.schritt-nr { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:50%; background:var(--marke); color:#fff; font-size:16px; flex:none; }
+.hilfe { margin:-8px 0 16px; color:var(--leise); font-size:15px; }
+
+label { display:block; font-weight:600; font-size:15px; margin-bottom:16px; }
+.optional { font-weight:400; color:var(--leise); }
+input[type="text"], input[type="number"], select, textarea {
+  display:block; width:100%; margin-top:6px; padding:10px 12px; font:inherit; font-weight:400; color:var(--tinte);
+  background:var(--feld); border:1px solid var(--feld-rand); border-radius:5px; min-height:44px;
+}
+textarea { resize:vertical; }
+input:focus, select:focus, textarea:focus { border-color:var(--akzent); outline:2px solid var(--akzent-hell); }
+.feld-fehler { border-color:var(--rot) !important; background:var(--rot-hell) !important; }
+.feldgruppe.zwei { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+fieldset { border:0; padding:0; margin:0; min-width:0; }
+legend { font-weight:600; font-size:15px; margin-bottom:6px; padding:0; }
+
+.bestellart { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.bestellart legend { grid-column:1 / -1; }
+.art-wahl { position:relative; margin:0; cursor:pointer; }
+.art-wahl input { position:absolute; opacity:0; inset:0; cursor:pointer; margin:0; }
+.art-text { display:flex; flex-direction:column; gap:2px; padding:14px 16px; border:2px solid var(--linie); border-radius:6px; background:var(--feld); }
+.art-name { font-family:var(--schrift-titel); font-size:18px; }
+.art-punkte { font-weight:400; color:var(--leise); }
+.art-wahl input:checked + .art-text { border-color:var(--akzent); background:var(--akzent-hell); }
+.art-wahl input:checked + .art-text .art-punkte { color:var(--akzent); font-weight:600; }
+.art-wahl input:focus-visible + .art-text { outline:3px solid var(--band); outline-offset:2px; }
+
+.artikel-liste { list-style:none; margin:0; padding:0; border-top:1px solid var(--linie); }
+.artikel { padding:14px 0; border-bottom:1px solid var(--linie); }
+.artikel-kopf { display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:8px; }
+.artikel-name { font-family:var(--schrift-titel); font-size:18px; font-weight:600; }
+.artikel-preis { color:var(--leise); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.zeile { display:grid; grid-template-columns:minmax(110px,160px) auto 1fr 32px; gap:12px; align-items:center; padding:4px 0; }
+.zeile select { margin:0; }
+.zeile.fehlt select { border-color:var(--rot); background:var(--rot-hell); }
+.groesse-fix { color:var(--leise); font-size:15px; padding-left:2px; }
+.stepper { display:flex; align-items:stretch; }
+.stepper-knopf { width:44px; height:44px; border:1px solid var(--feld-rand); background:var(--feld); color:var(--akzent); font-size:22px; line-height:1; cursor:pointer; }
+.stepper-knopf:first-child { border-radius:5px 0 0 5px; }
+.stepper-knopf:last-child { border-radius:0 5px 5px 0; }
+.stepper-knopf:hover:not(:disabled) { background:var(--akzent-hell); }
+.stepper-knopf:disabled { color:var(--feld-aus); cursor:not-allowed; }
+.stepper .anzahl { width:3.2em; margin:0; min-height:44px; height:44px; padding:0 4px; border-radius:0; border-left:0; border-right:0; text-align:center; font-variant-numeric:tabular-nums; -moz-appearance:textfield; appearance:textfield; }
+.stepper .anzahl::-webkit-outer-spin-button, .stepper .anzahl::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+.zeile.aktiv .anzahl { font-weight:700; color:var(--akzent); background:var(--akzent-hell); }
+.zeile-punkte { text-align:right; font-variant-numeric:tabular-nums; color:var(--akzent); font-weight:600; }
+.zeile-entfernen { width:32px; height:32px; border:0; border-radius:50%; background:transparent; color:var(--leise); font-size:20px; cursor:pointer; }
+.zeile-entfernen:hover { background:var(--rot-hell); color:var(--rot); }
+.weitere-groesse { margin-top:6px; padding:4px 0; border:0; background:none; color:var(--akzent); font:inherit; font-size:15px; text-decoration:underline; cursor:pointer; }
+
+/* Punkte-Massband */
+.spalte-meter { position:sticky; top:calc(24px + env(safe-area-inset-top,0px)); }
+.meter { background:var(--marke-dunkel); color:#fff; border-radius:8px; padding:22px 22px 18px; }
+.meter-zahlen p { margin:0; }
+.meter-rest { font-family:var(--schrift-titel); font-size:56px; font-weight:600; line-height:1; font-variant-numeric:tabular-nums; font-stretch:85%; }
+.meter-einheit { font-size:20px; font-weight:400; opacity:.85; }
+.meter-verwendet { margin-top:6px !important; opacity:.8; font-variant-numeric:tabular-nums; }
+.band { position:relative; height:52px; margin-top:16px; background:var(--band); border-radius:3px; overflow:hidden; box-shadow:inset 0 -3px 0 rgba(0,0,0,.12); }
+.band-fuellung { position:absolute; left:0; top:0; bottom:0; width:0; background:#0E1E2E; opacity:.78; transition:width .25s ease, background-color .2s; }
+.band-striche { --teile:40; position:absolute; inset:0;
+  background-image:repeating-linear-gradient(to right, rgba(0,0,0,.7) 0 2px, transparent 2px calc(500% / var(--teile))),
+                   repeating-linear-gradient(to right, rgba(0,0,0,.55) 0 1px, transparent 1px calc(100% / var(--teile)));
+  background-size:100% 45%, 100% 25%; background-repeat:no-repeat; }
+.band-zahlen span { position:absolute; bottom:5px; transform:translateX(-50%); font-family:var(--schrift-titel); font-size:13px; font-weight:600; color:#16212C; }
+.meter.ueber .band-fuellung { background:#A8261D; opacity:.9; }
+.meter.ueber .meter-rest { color:#FFB4AC; }
+.meter.ohne-art .band { opacity:.35; }
+.auswahl { list-style:none; margin:16px 0 0; padding:12px 0 0; border-top:1px solid rgba(255,255,255,.18); font-size:14px; }
+.auswahl:empty { display:none; }
+.auswahl li { display:flex; justify-content:space-between; gap:12px; padding:3px 0; }
+.auswahl .zahl { font-variant-numeric:tabular-nums; opacity:.8; }
+@media (prefers-reduced-motion: reduce) { .band-fuellung { transition:none; } }
+
+.status { min-height:1.5em; margin:4px 0 14px; color:var(--leise); }
+.status.warnung { color:var(--rot); font-weight:600; }
+.knopf-haupt, .knopf { display:inline-block; padding:12px 22px; border:0; border-radius:6px; background:var(--marke); color:#fff; font:600 17px var(--schrift-titel); text-decoration:none; cursor:pointer; }
+.knopf-haupt { width:100%; padding:16px 22px; font-size:19px; }
+.knopf-haupt:hover:not(:disabled), .knopf:hover { background:var(--marke-dunkel); }
+.knopf-haupt:disabled { background:var(--feld-aus); color:var(--karte); cursor:not-allowed; }
+.knopf-leise { background:transparent; color:var(--akzent); border:1px solid var(--akzent); }
+.knopf-leise:hover { background:var(--akzent-hell); }
+.knopf-klein { padding:6px 12px; font-size:14px; }
+.knopf-gefahr { background:#A8261D; }
+.knopf-gefahr:hover { background:#821C15; }
+
+.fehler-box, .hinweis-box, .ok-box { border-radius:8px; padding:16px 20px; margin-bottom:20px; }
+.fehler-box { background:var(--rot-hell); border:1px solid var(--rot-rand); color:var(--rot-text); }
+.fehler-box p { margin:0; }
+.hinweis-box { background:var(--karte); border:1px solid var(--linie); }
+.ok-box { background:var(--ok-bg); border:1px solid var(--ok-rand); color:var(--ok-text); }
+
+.beleg { background:var(--karte); border:1px solid var(--linie); border-radius:8px; padding:24px; }
+.beleg-nr { margin:0 0 16px; font-family:var(--schrift-titel); font-size:20px; }
+.beleg-daten { display:grid; grid-template-columns:max-content 1fr; gap:4px 20px; margin:0 0 20px; }
+.beleg-daten dt { color:var(--leise); }
+.beleg-daten dd { margin:0; }
+.aktionen { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+
+.tabelle-rahmen { overflow-x:auto; }
+.tabelle { width:100%; border-collapse:collapse; font-size:15px; background:var(--karte); }
+.tabelle th, .tabelle td { padding:9px 10px; border-bottom:1px solid var(--linie); text-align:left; vertical-align:top; }
+.tabelle th { font-family:var(--schrift-titel); font-weight:600; background:var(--akzent-hell); white-space:nowrap; }
+.tabelle tfoot td { font-weight:700; border-top:2px solid var(--tinte); border-bottom:0; }
+.tabelle .zahl { text-align:right; font-variant-numeric:tabular-nums; }
+.tabelle .leer { color:var(--feld-aus); }
+.leise { color:var(--leise); }
+
+.admin-nav { background:var(--marke-dunkel); }
+.admin-nav ul { max-width:1240px; margin:0 auto; padding:0 24px; list-style:none; display:flex; flex-wrap:wrap; gap:4px; }
+.admin-nav button { display:block; padding:12px 14px; color:#fff; background:none; border:0; opacity:.8; font:16px var(--schrift-titel); cursor:pointer; }
+.admin-nav button:hover { opacity:1; }
+.admin-nav button[aria-current="page"] { opacity:1; box-shadow:inset 0 -3px 0 var(--band); }
+.admin-inhalt { max-width:1240px; margin:0 auto; padding:28px 24px 64px; }
+.admin-inhalt h2 { font-size:26px; margin-bottom:16px; }
+.werkzeuge { display:flex; flex-wrap:wrap; gap:12px; align-items:end; margin-bottom:18px; }
+.werkzeuge label { margin:0; }
+.werkzeuge input { min-width:220px; }
+.werkzeuge .rechts { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+.marke { display:inline-block; padding:1px 8px; border-radius:10px; font-size:13px; font-weight:600; background:var(--akzent-hell); color:var(--akzent); white-space:nowrap; }
+.marke-warn { background:var(--warn-bg); color:var(--warn-text); }
+.marke-neu { background:var(--ok-bg); color:var(--ok-text); }
+.person { background:var(--karte); border:1px solid var(--linie); border-radius:8px; padding:16px 20px; margin-bottom:14px; }
+.person h3 { margin:0 0 4px; font-size:20px; }
+.person .meta { color:var(--leise); margin:0 0 10px; font-size:14px; }
+.personen-raster { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px, 1fr)); gap:14px; }
+.personen-raster .person { margin:0; }
+
+.toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--tinte); color:var(--papier); padding:10px 18px; border-radius:6px; font-size:15px; z-index:50; max-width:calc(100% - 32px); }
+
+@media (max-width: 880px) {
+  .layout { grid-template-columns:1fr; gap:0; padding:20px 14px 170px; }
+  .schmal, .admin-inhalt { padding:20px 14px 48px; }
+  .kopf-innen, .demo-innen { padding-left:16px; padding-right:16px; }
+  .kopf-innen { padding-top:20px; padding-bottom:22px; }
+  .schritt { padding:18px 16px; }
+  .spalte-meter { position:fixed; left:0; right:0; bottom:0; top:auto; z-index:10; }
+  .meter { border-radius:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); box-shadow:0 -4px 16px rgba(10,25,40,.25); }
+  .meter-zahlen { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .meter-rest { font-size:34px; }
+  .meter-einheit { font-size:16px; }
+  .meter-verwendet { margin:0 !important; font-size:14px; }
+  .band { height:34px; margin-top:8px; }
+  .band-zahlen span { font-size:11px; bottom:2px; }
+  .auswahl { display:none; }
+  .toast { bottom:calc(150px + env(safe-area-inset-bottom,0px)); }
+  .demo-schalter { margin-left:0; }
+}
+@media (max-width: 520px) {
+  .feldgruppe.zwei, .bestellart { grid-template-columns:1fr; }
+  .zeile { grid-template-columns:1fr auto 32px; row-gap:6px; }
+  .zeile-punkte { display:none; }
+  .werkzeuge input { min-width:0; }
+  .werkzeuge .rechts { margin-left:0; }
+}
+</style>
+</head>
+<body>
+
+<div class="demo-leiste">
+  <div class="demo-innen">
+    <strong>Demo zur Ansicht</strong>
+    <span>Bestellungen bleiben nur in diesem Browser.</span>
+    <div class="demo-schalter" role="group" aria-label="Ansicht wechseln">
+      <button type="button" data-ansicht="bestellen" aria-pressed="true">Bestellseite</button>
+      <button type="button" data-ansicht="admin" aria-pressed="false">Adminbereich</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== Bestellseite ===================== -->
+<div id="ansicht-bestellen">
+  <header class="kopf">
+    <div class="kopf-innen">
+      <p class="firma">Musterfirma AG</p>
+      <h1>Arbeitskleidung bestellen</h1>
+      <p class="kopf-info">Bestellperiode 2026/27<span class="trenner">|</span>Bestellschluss 30.11.2026<span class="trenner">|</span>Auslieferung Frühling 2027</p>
+    </div>
+  </header>
+
+  <form class="layout" id="bestellformular" novalidate>
+    <div class="spalte-haupt">
+      <p class="einleitung">Bitte wählen Sie die Grössen sorgfältig. Pro Person ist eine Bestellung pro Bestellperiode vorgesehen.</p>
+
+      <section class="schritt">
+        <h2><span class="schritt-nr">1</span> Wer bestellt?</h2>
+        <div class="feldgruppe zwei">
+          <label>Vorname <input type="text" name="vorname" maxlength="80" autocomplete="given-name"></label>
+          <label>Nachname <input type="text" name="nachname" maxlength="80" autocomplete="family-name"></label>
+        </div>
+        <label>Kostenstelle
+          <select name="kostenstelle" id="kostenstelle"><option value="">Kostenstelle wählen</option></select>
+        </label>
+        <fieldset class="bestellart" id="bestellart"><legend>Bestellart</legend></fieldset>
+      </section>
+
+      <section class="schritt">
+        <h2><span class="schritt-nr">2</span> Kleidung auswählen</h2>
+        <p class="hilfe">Wählen Sie Grösse und Anzahl. Brauchen Sie einen Artikel in zwei Grössen, fügen Sie eine weitere Grösse hinzu.</p>
+        <ul class="artikel-liste" id="artikelListe"></ul>
+      </section>
+
+      <section class="schritt">
+        <h2><span class="schritt-nr">3</span> Bestellung absenden</h2>
+        <label>Bemerkung <span class="optional">(freiwillig)</span>
+          <textarea name="bemerkung" rows="3" maxlength="1000"></textarea>
+        </label>
+        <p class="status" id="status" aria-live="polite"></p>
+        <button type="submit" class="knopf-haupt" id="absenden">Bestellung absenden</button>
+      </section>
+    </div>
+
+    <aside class="spalte-meter" aria-label="Punktestand">
+      <div class="meter" id="meter">
+        <div class="meter-zahlen">
+          <p class="meter-rest"><span id="rest">–</span> <span class="meter-einheit">Punkte frei</span></p>
+          <p class="meter-verwendet"><span id="verwendet">0</span> von <span id="budget">–</span> verwendet</p>
+        </div>
+        <div class="band" aria-hidden="true">
+          <div class="band-fuellung" id="bandFuellung"></div>
+          <div class="band-striche" id="bandStriche"></div>
+          <div class="band-zahlen" id="bandZahlen"></div>
+        </div>
+        <ul class="auswahl" id="auswahl"></ul>
+      </div>
+    </aside>
+  </form>
+</div>
+
+<!-- ===================== Bestätigung ===================== -->
+<div id="ansicht-danke" hidden>
+  <header class="kopf">
+    <div class="kopf-innen">
+      <p class="firma">Musterfirma AG</p>
+      <h1>Bestellung gespeichert</h1>
+    </div>
+  </header>
+  <main class="schmal">
+    <div class="beleg" id="beleg"></div>
+    <p class="aktionen">
+      <button type="button" class="knopf" id="neueBestellung">Weitere Bestellung erfassen</button>
+      <button type="button" class="knopf knopf-leise" data-ansicht="admin">Im Adminbereich ansehen</button>
+    </p>
+  </main>
+</div>
+
+<!-- ===================== Adminbereich ===================== -->
+<div id="ansicht-admin" hidden>
+  <header class="kopf admin">
+    <div class="kopf-innen">
+      <p class="firma">Musterfirma AG</p>
+      <h1>Arbeitskleidung verwalten</h1>
+    </div>
+  </header>
+  <nav class="admin-nav" aria-label="Adminbereich">
+    <ul>
+      <li><button type="button" data-tab="bestellungen" aria-current="page">Bestellungen</button></li>
+      <li><button type="button" data-tab="gesamt">Gesamtbestellung</button></li>
+      <li><button type="button" data-tab="personen">Pro Person</button></li>
+      <li><button type="button" data-tab="artikel">Artikel</button></li>
+    </ul>
+  </nav>
+  <main class="admin-inhalt" id="adminInhalt"></main>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Stammdaten der Demo ---------- */
+  var K = 'XS,S,M,L,XL,XXL'.split(',');
+  var ARTIKEL = [
+    { id: 1, name: 'T-Shirt mit Arm grau', punkte: 20, groessen: K },
+    { id: 2, name: 'T-Shirt mit Arm weiss', punkte: 20, groessen: K },
+    { id: 3, name: 'Arbeitshose', punkte: 90, groessen: K },
+    { id: 4, name: 'Shorts', punkte: 70, groessen: K },
+    { id: 5, name: 'Hoody mit Kapuze', punkte: 60, groessen: K },
+    { id: 6, name: 'Softshell-Jacke', punkte: 80, groessen: K },
+    { id: 7, name: 'Softshell-Gilet light', punkte: 70, groessen: K },
+    { id: 8, name: 'Softshell-Gilet warm', punkte: 100, groessen: K },
+    { id: 9, name: 'Regenjacke', punkte: 120, groessen: K },
+    { id: 10, name: 'Wintermütze', punkte: 20, groessen: ['Standard'] },
+    { id: 11, name: 'Cap', punkte: 10, groessen: ['Standard'] },
+    { id: 12, name: 'UV 50+ Sonnenhut', punkte: 10, groessen: ['Standard'] }
+  ];
+  var GROESSEN = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Standard'];
+  var KOSTENSTELLEN = [
+    { nr: '1000', bez: 'Verwaltung' }, { nr: '2000', bez: 'Produktion' },
+    { nr: '3000', bez: 'Werkstatt' }, { nr: '4000', bez: 'Logistik' }
+  ];
+  var BUDGETS = { 'Jahresbestellung': 400, 'Neueintritt': 600 };
+  var PREFIX = { 'Jahresbestellung': 'JB', 'Neueintritt': 'NE' };
+
+  function art(id) { return ARTIKEL.find(function (a) { return a.id === id; }); }
+  function pos(id, g, n) { var a = art(id); return { artikel: a.name, groesse: g, anzahl: n, punkte: n * a.punkte }; }
+
+  var BEISPIELE = [
+    { vorname: 'Peter', nachname: 'Keller', kst: '3000', art: 'Jahresbestellung', datum: '01.10.2026 07:12', pos: [pos(1, 'M', 3), pos(3, 'L', 2), pos(6, 'L', 1)] },
+    { vorname: 'Sandra', nachname: 'Brunner', kst: '1000', art: 'Jahresbestellung', datum: '01.10.2026 09:40', pos: [pos(2, 'S', 2), pos(5, 'S', 1), pos(9, 'S', 1), pos(11, 'Standard', 1)] },
+    { vorname: 'Thomas', nachname: 'Meier', kst: '2000', art: 'Jahresbestellung', datum: '01.10.2026 12:05', pos: [pos(3, 'XL', 2), pos(4, 'XL', 1), pos(8, 'XL', 1)] },
+    { vorname: 'Arben', nachname: 'Gashi', kst: '2000', art: 'Neueintritt', datum: '01.10.2026 15:31', pos: [pos(1, 'L', 4), pos(3, 'L', 2), pos(6, 'L', 1), pos(9, 'L', 1), pos(10, 'Standard', 1)] },
+    { vorname: 'Marco', nachname: 'Rossi', kst: '3000', art: 'Jahresbestellung', datum: '01.10.2026 16:21', pos: [pos(3, 'M', 2), pos(1, 'M', 2), pos(5, 'M', 1), pos(10, 'Standard', 1), pos(12, 'Standard', 1)] },
+    { vorname: 'Laura', nachname: 'Steiner', kst: '4000', art: 'Jahresbestellung', datum: '02.10.2026 07:48', pos: [pos(4, 'S', 2), pos(2, 'S', 3), pos(11, 'Standard', 1), pos(12, 'Standard', 1)] },
+    { vorname: 'peter', nachname: 'Keller', kst: '3000', art: 'Jahresbestellung', datum: '02.10.2026 09:02', pos: [pos(9, 'L', 1)] }
+  ];
+
+  var SPEICHER = 'ak-demo-bestellungen-v1';
+  var eigene = [];
+  var geloescht = [];
+  try {
+    var gespeichert = JSON.parse(localStorage.getItem(SPEICHER) || 'null');
+    if (gespeichert) { eigene = gespeichert.eigene || []; geloescht = gespeichert.geloescht || []; }
+  } catch (e) { /* ohne Speicher weiter */ }
+  function speichern() {
+    try { localStorage.setItem(SPEICHER, JSON.stringify({ eigene: eigene, geloescht: geloescht })); } catch (e) {}
+  }
+
+  function alleBestellungen() {
+    var liste = BEISPIELE.map(function (b, i) {
+      return Object.assign({ nr: PREFIX[b.art] + '-2026-' + String(i + 1).padStart(4, '0'), beispiel: true }, b);
+    }).concat(eigene);
+    liste.forEach(function (b) {
+      b.total = b.pos.reduce(function (s, p) { return s + p.punkte; }, 0);
+      b.kstBez = (KOSTENSTELLEN.find(function (k) { return k.nr === b.kst; }) || {}).bez || '';
+    });
+    return liste.filter(function (b) { return geloescht.indexOf(b.nr) < 0; });
+  }
+
+  /* ---------- Hilfen ---------- */
+  function el(tag, attrs, kinder) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      if (k === 'text') n.textContent = attrs[k];
+      else if (k === 'class') n.className = attrs[k];
+      else n.setAttribute(k, attrs[k]);
+    });
+    (kinder || []).forEach(function (c) { if (c) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var toastTimer;
+  function toast(text) {
+    var t = document.getElementById('toast');
+    t.textContent = text; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, 3200);
+  }
+
+  /* ---------- Ansichten ---------- */
+  function zeige(ansicht) {
+    ['bestellen', 'danke', 'admin'].forEach(function (a) {
+      document.getElementById('ansicht-' + a).hidden = a !== ansicht;
+    });
+    document.querySelectorAll('.demo-schalter button').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.ansicht === ansicht || (ansicht === 'danke' && b.dataset.ansicht === 'bestellen')));
+    });
+    if (ansicht === 'admin') adminZeigen();
+    window.scrollTo(0, 0);
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest('[data-ansicht]');
+    if (b) zeige(b.dataset.ansicht);
+  });
+
+  /* ===================== Bestellformular ===================== */
+  var form = document.getElementById('bestellformular');
+  var liste = document.getElementById('artikelListe');
+  var zaehler = 0;
+
+  KOSTENSTELLEN.forEach(function (k) {
+    form.elements.kostenstelle.appendChild(el('option', { value: k.nr, text: k.nr + '  ' + k.bez }));
+  });
+  Object.keys(BUDGETS).forEach(function (a) {
+    document.getElementById('bestellart').appendChild(el('label', { class: 'art-wahl' }, [
+      el('input', { type: 'radio', name: 'bestellart', value: a }),
+      el('span', { class: 'art-text' }, [el('span', { class: 'art-name', text: a }), el('span', { class: 'art-punkte', text: BUDGETS[a] + ' Punkte' })])
+    ]));
+  });
+
+  function bestellart() { var r = form.querySelector('input[name="bestellart"]:checked'); return r ? r.value : null; }
+  function budget() { var a = bestellart(); return a ? BUDGETS[a] : null; }
+  function alleZeilen() { return Array.prototype.slice.call(liste.querySelectorAll('.zeile')); }
+  function zeilenDaten(z) {
+    var a = art(Number(z.dataset.artikel));
+    var n = parseInt(z.querySelector('.anzahl').value, 10);
+    var g = z.querySelector('[data-groesse]');
+    return { zeile: z, artikel: a, anzahl: isNaN(n) || n < 0 ? 0 : n, groesse: g ? g.value : '' };
+  }
+  function verwendet(ausser) {
+    return alleZeilen().reduce(function (s, z) { if (z === ausser) return s; var d = zeilenDaten(z); return s + d.anzahl * d.artikel.punkte; }, 0);
+  }
+
+  function neueZeile(a, entfernbar) {
+    zaehler++;
+    var z = el('div', { class: 'zeile', 'data-artikel': a.id });
+    var groessenFeld;
+    if (a.groessen.length === 1) {
+      groessenFeld = el('span', { class: 'groesse-fix' }, [el('input', { type: 'hidden', value: a.groessen[0], 'data-groesse': '' }), 'Einheitsgrösse']);
+    } else {
+      groessenFeld = el('select', { 'data-groesse': '', 'aria-label': 'Grösse für ' + a.name },
+        [el('option', { value: '', text: 'Grösse' })].concat(a.groessen.map(function (g) { return el('option', { value: g, text: g }); })));
+      groessenFeld.addEventListener('change', aktualisieren);
+    }
+    var minus = el('button', { type: 'button', class: 'stepper-knopf', 'aria-label': 'Eins weniger', text: '−' });
+    var plus = el('button', { type: 'button', class: 'stepper-knopf', 'aria-label': 'Eins mehr', text: '+' });
+    var feld = el('input', { type: 'number', class: 'anzahl', min: '0', max: '99', inputmode: 'numeric', value: '0', 'aria-label': 'Anzahl ' + a.name });
+    minus.addEventListener('click', function () { setzen(z, zeilenDaten(z).anzahl - 1); });
+    plus.addEventListener('click', function () { setzen(z, zeilenDaten(z).anzahl + 1); });
+    feld.addEventListener('input', function () { begrenzen(z); });
+    feld.addEventListener('blur', function () { if (feld.value === '') feld.value = '0'; aktualisieren(); });
+    z.appendChild(el('div', { class: 'zeile-groesse' }, [groessenFeld]));
+    z.appendChild(el('div', { class: 'stepper' }, [minus, feld, plus]));
+    z.appendChild(el('span', { class: 'zeile-punkte' }));
+    if (entfernbar) {
+      var weg = el('button', { type: 'button', class: 'zeile-entfernen', 'aria-label': 'Grösse entfernen', text: '×' });
+      weg.addEventListener('click', function () { z.remove(); aktualisieren(); });
+      z.appendChild(weg);
+    } else {
+      z.appendChild(el('span'));
+    }
+    return z;
+  }
+
+  function aufbauen() {
+    liste.innerHTML = '';
+    ARTIKEL.forEach(function (a) {
+      var zeilen = el('div', { class: 'zeilen' }, [neueZeile(a, false)]);
+      var li = el('li', { class: 'artikel' }, [
+        el('div', { class: 'artikel-kopf' }, [el('span', { class: 'artikel-name', text: a.name }), el('span', { class: 'artikel-preis', text: a.punkte + ' Punkte' })]),
+        zeilen
+      ]);
+      if (a.groessen.length > 1) {
+        var mehr = el('button', { type: 'button', class: 'weitere-groesse', text: '+ Weitere Grösse' });
+        mehr.addEventListener('click', function () {
+          var z = neueZeile(a, true); zeilen.appendChild(z); z.querySelector('select').focus(); aktualisieren();
+        });
+        li.appendChild(mehr);
+      }
+      liste.appendChild(li);
+    });
+  }
+
+  var hinweis = null;
+  var letztesBudget = null;
+
+  function setzen(z, n) { z.querySelector('.anzahl').value = String(Math.max(0, Math.min(99, n))); begrenzen(z); }
+  function begrenzen(z) {
+    var b = budget(), d = zeilenDaten(z);
+    if (b !== null) {
+      var max = Math.floor((b - verwendet(z)) / d.artikel.punkte);
+      if (d.anzahl > max) { z.querySelector('.anzahl').value = String(Math.max(0, max)); hinweis = 'Mehr ist mit dem verbleibenden Budget nicht möglich.'; }
+    }
+    aktualisieren();
+  }
+  function meldung(text, warnung) {
+    var s = document.getElementById('status'); s.textContent = text; s.classList.toggle('warnung', !!warnung);
+  }
+  function bandAufbauen(b) {
+    document.getElementById('bandStriche').style.setProperty('--teile', String(b / 10));
+    var zahlen = document.getElementById('bandZahlen'); zahlen.innerHTML = '';
+    for (var p = 100; p < b; p += 100) { var s = el('span', { text: String(p) }); s.style.left = (p / b * 100) + '%'; zahlen.appendChild(s); }
+  }
+
+  function aktualisieren() {
+    var b = budget(), v = verwendet(null), rest = b === null ? null : b - v;
+    document.getElementById('verwendet').textContent = v;
+    document.getElementById('budget').textContent = b === null ? '–' : b;
+    document.getElementById('rest').textContent = rest === null ? '–' : rest;
+    var meter = document.getElementById('meter');
+    meter.classList.toggle('ueber', rest !== null && rest < 0);
+    meter.classList.toggle('ohne-art', b === null);
+    if (b !== null && b !== letztesBudget) { bandAufbauen(b); letztesBudget = b; }
+    document.getElementById('bandFuellung').style.width = (b ? Math.min(1, v / b) * 100 : 0) + '%';
+
+    var auswahl = [];
+    alleZeilen().forEach(function (z) {
+      var d = zeilenDaten(z), k = z.querySelectorAll('.stepper-knopf');
+      k[0].disabled = d.anzahl <= 0;
+      k[1].disabled = d.anzahl >= 99 || (rest !== null && d.artikel.punkte > rest);
+      z.classList.toggle('aktiv', d.anzahl > 0);
+      if (d.groesse || d.anzahl === 0) z.classList.remove('fehlt');
+      z.querySelector('.zeile-punkte').textContent = d.anzahl > 0 ? (d.anzahl * d.artikel.punkte) + ' P.' : '';
+      if (d.anzahl > 0) auswahl.push(d);
+    });
+    liste.querySelectorAll('.artikel').forEach(function (li) {
+      var k = li.querySelector('.weitere-groesse'); if (k) k.hidden = !li.querySelector('.zeile.aktiv');
+    });
+    var ul = document.getElementById('auswahl'); ul.innerHTML = '';
+    auswahl.forEach(function (d) {
+      ul.appendChild(el('li', {}, [
+        el('span', { text: d.anzahl + ' × ' + d.artikel.name + (d.groesse && d.groesse !== 'Standard' ? ' (' + d.groesse + ')' : '') }),
+        el('span', { class: 'zahl', text: String(d.anzahl * d.artikel.punkte) })
+      ]));
+    });
+    if (b === null) meldung('Wählen Sie zuerst die Bestellart, dann wird Ihr Budget angezeigt.');
+    else if (rest < 0) meldung('Die Auswahl übersteigt das Budget um ' + (-rest) + ' Punkte. Bitte reduzieren Sie die Auswahl.', true);
+    else if (hinweis) meldung(hinweis, true);
+    else if (!auswahl.length) meldung('Wählen Sie mindestens einen Artikel.');
+    else meldung(auswahl.length + (auswahl.length === 1 ? ' Position' : ' Positionen') + ', ' + v + ' von ' + b + ' Punkten.');
+    hinweis = null;
+    document.getElementById('absenden').disabled = b === null || rest < 0 || !auswahl.length;
+  }
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var erstes = null, fehltGroesse = false, fehltAngabe = false;
+    ['vorname', 'nachname', 'kostenstelle'].forEach(function (n) {
+      var f = form.elements[n], leer = !f.value.trim();
+      f.classList.toggle('feld-fehler', leer);
+      if (leer) { fehltAngabe = true; if (!erstes) erstes = f; }
+    });
+    var positionen = {};
+    alleZeilen().forEach(function (z) {
+      var d = zeilenDaten(z);
+      if (d.anzahl > 0 && !d.groesse) { z.classList.add('fehlt'); fehltGroesse = true; if (!erstes) erstes = z.querySelector('select'); }
+      if (d.anzahl > 0 && d.groesse) {
+        var key = d.artikel.id + '|' + d.groesse;
+        positionen[key] = positionen[key] || { artikel: d.artikel.name, groesse: d.groesse, anzahl: 0, punkte: 0 };
+        positionen[key].anzahl += d.anzahl; positionen[key].punkte += d.anzahl * d.artikel.punkte;
+      }
+    });
+    if (fehltAngabe || fehltGroesse) {
+      var t = [];
+      if (fehltAngabe) t.push('Bitte füllen Sie Name und Kostenstelle aus.');
+      if (fehltGroesse) t.push('Bei den rot markierten Artikeln fehlt die Grösse.');
+      meldung(t.join(' '), true);
+      if (erstes) erstes.focus();
+      return;
+    }
+    var jetzt = new Date();
+    var nr = PREFIX[bestellart()] + '-2026-' + String(BEISPIELE.length + eigene.length + 1).padStart(4, '0');
+    var b = {
+      nr: nr, vorname: form.elements.vorname.value.trim(), nachname: form.elements.nachname.value.trim(),
+      kst: form.elements.kostenstelle.value, art: bestellart(),
+      datum: jetzt.toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + jetzt.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }),
+      bemerkung: form.elements.bemerkung.value.trim(),
+      pos: Object.keys(positionen).map(function (k) { return positionen[k]; }), neu: true
+    };
+    eigene.push(b); speichern();
+    belegZeigen(b);
+    zeige('danke');
+  });
+
+  form.addEventListener('change', function (ev) {
+    if (ev.target.name === 'bestellart') aktualisieren();
+    if (ev.target.classList.contains('feld-fehler') && ev.target.value.trim()) ev.target.classList.remove('feld-fehler');
+  });
+  form.addEventListener('input', function (ev) {
+    if (ev.target.classList.contains('feld-fehler') && ev.target.value.trim()) ev.target.classList.remove('feld-fehler');
+  });
+
+  function formularLeeren() {
+    form.reset();
+    aufbauen();
+    letztesBudget = null;
+    aktualisieren();
+  }
+  document.getElementById('neueBestellung').addEventListener('click', function () { formularLeeren(); zeige('bestellen'); });
+
+  function tabellePositionen(b) {
+    var total = b.pos.reduce(function (s, p) { return s + p.punkte; }, 0);
+    return '<div class="tabelle-rahmen"><table class="tabelle"><thead><tr><th>Artikel</th><th>Grösse</th><th class="zahl">Anzahl</th><th class="zahl">Punkte</th></tr></thead><tbody>' +
+      b.pos.map(function (p) { return '<tr><td>' + esc(p.artikel) + '</td><td>' + esc(p.groesse) + '</td><td class="zahl">' + p.anzahl + '</td><td class="zahl">' + p.punkte + '</td></tr>'; }).join('') +
+      '</tbody><tfoot><tr><td colspan="3">Total von ' + BUDGETS[b.art] + ' Punkten</td><td class="zahl">' + total + '</td></tr></tfoot></table></div>';
+  }
+  function belegZeigen(b) {
+    var k = KOSTENSTELLEN.find(function (x) { return x.nr === b.kst; });
+    document.getElementById('beleg').innerHTML =
+      '<p class="beleg-nr">Bestellnummer <strong>' + esc(b.nr) + '</strong></p>' +
+      '<dl class="beleg-daten"><dt>Name</dt><dd>' + esc(b.vorname + ' ' + b.nachname) + '</dd>' +
+      '<dt>Kostenstelle</dt><dd>' + esc(k.nr + ' ' + k.bez) + '</dd>' +
+      '<dt>Bestellart</dt><dd>' + esc(b.art) + '</dd><dt>Datum</dt><dd>' + esc(b.datum) + '</dd>' +
+      (b.bemerkung ? '<dt>Bemerkung</dt><dd>' + esc(b.bemerkung) + '</dd>' : '') + '</dl>' +
+      tabellePositionen(b) + '<p class="leise" style="margin:16px 0 0">Auslieferung Frühling 2027</p>';
+  }
+
+  /* ===================== Adminbereich ===================== */
+  var tab = 'bestellungen';
+  var suche = '';
+  var inhalt = document.getElementById('adminInhalt');
+
+  document.querySelectorAll('.admin-nav [data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () { tab = b.dataset.tab; adminZeigen(); });
+  });
+
+  function adminZeigen() {
+    document.querySelectorAll('.admin-nav [data-tab]').forEach(function (b) {
+      if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    ({ bestellungen: adminBestellungen, gesamt: adminGesamt, personen: adminPersonen, artikel: adminArtikel })[tab]();
+  }
+
+  function exportKnopf(text) {
+    return '<button type="button" class="knopf knopf-klein" data-export>' + text + '</button>';
+  }
+  inhalt.addEventListener('click', function (ev) {
+    if (ev.target.closest('[data-export]')) toast('In der echten Version lädt dieser Knopf eine CSV-Datei für Excel herunter.');
+    var loesch = ev.target.closest('[data-loeschen]');
+    if (loesch && confirm('Bestellung ' + loesch.dataset.loeschen + ' wirklich löschen?')) {
+      geloescht.push(loesch.dataset.loeschen); speichern(); adminZeigen(); toast('Bestellung ' + loesch.dataset.loeschen + ' wurde gelöscht.');
+    }
+    if (ev.target.closest('[data-zuruecksetzen]')) {
+      eigene = []; geloescht = []; speichern(); adminZeigen(); toast('Die Demo wurde zurückgesetzt.');
+    }
+  });
+
+  function schluessel(b) { return b.vorname.trim().toLowerCase() + '|' + b.nachname.trim().toLowerCase() + '|' + b.art; }
+
+  function adminBestellungen() {
+    var alle = alleBestellungen();
+    var zaehl = {};
+    alle.forEach(function (b) { var k = schluessel(b); zaehl[k] = (zaehl[k] || 0) + 1; });
+    var q = suche.toLowerCase();
+    var liste = alle.filter(function (b) {
+      return !q || (b.vorname + ' ' + b.nachname + ' ' + b.nr + ' ' + b.kst).toLowerCase().indexOf(q) >= 0;
+    }).slice().reverse();
+    var mehrfach = alle.filter(function (b) { return zaehl[schluessel(b)] > 1; }).length;
+    var summe = liste.reduce(function (s, b) { return s + b.total; }, 0);
+
+    inhalt.innerHTML =
+      '<h2>Bestellungen 2026/27</h2>' +
+      '<div class="werkzeuge"><label>Suchen <input type="text" id="suche" value="' + esc(suche) + '" placeholder="Name, Nummer, Kostenstelle"></label>' +
+      '<span class="rechts"><button type="button" class="knopf knopf-leise knopf-klein" data-zuruecksetzen>Demo zurücksetzen</button>' + exportKnopf('Als Excel (CSV)') + '</span></div>' +
+      (mehrfach ? '<div class="fehler-box"><p>' + mehrfach + ' Bestellungen stammen von Personen, die in dieser Periode mehrfach mit derselben Bestellart bestellt haben. Prüfen Sie diese und löschen Sie ungültige Bestellungen.</p></div>' : '') +
+      '<div class="tabelle-rahmen"><table class="tabelle"><thead><tr><th>Nummer</th><th>Eingang</th><th>Name</th><th>Kostenstelle</th><th>Bestellart</th><th class="zahl">Punkte</th><th></th></tr></thead><tbody>' +
+      liste.map(function (b) {
+        return '<tr><td>' + esc(b.nr) + (b.neu ? ' <span class="marke marke-neu">Neu</span>' : '') + '</td><td>' + esc(b.datum) + '</td>' +
+          '<td>' + esc(b.nachname + ' ' + b.vorname) + (zaehl[schluessel(b)] > 1 ? ' <span class="marke marke-warn">' + zaehl[schluessel(b)] + '× bestellt</span>' : '') + '</td>' +
+          '<td>' + esc(b.kst) + ' <span class="leise">' + esc(b.kstBez) + '</span></td><td>' + esc(b.art) + '</td>' +
+          '<td class="zahl">' + b.total + ' / ' + BUDGETS[b.art] + '</td>' +
+          '<td><button type="button" class="knopf knopf-gefahr knopf-klein" data-loeschen="' + esc(b.nr) + '">Löschen</button></td></tr>';
+      }).join('') +
+      (liste.length ? '' : '<tr><td colspan="7" class="leise">Keine Bestellungen gefunden.</td></tr>') +
+      '</tbody><tfoot><tr><td colspan="5">' + liste.length + ' Bestellungen</td><td class="zahl">' + summe.toLocaleString('de-CH') + '</td><td></td></tr></tfoot></table></div>';
+
+    var s = document.getElementById('suche');
+    s.addEventListener('input', function () {
+      suche = s.value; var pos = s.selectionStart; adminBestellungen();
+      var neu = document.getElementById('suche'); neu.focus(); neu.setSelectionRange(pos, pos);
+    });
+  }
+
+  function adminGesamt() {
+    var m = {}, benutzt = {};
+    alleBestellungen().forEach(function (b) {
+      b.pos.forEach(function (p) {
+        m[p.artikel] = m[p.artikel] || {};
+        m[p.artikel][p.groesse] = (m[p.artikel][p.groesse] || 0) + p.anzahl;
+        benutzt[p.groesse] = true;
+      });
+    });
+    var spalten = GROESSEN.filter(function (g) { return benutzt[g]; });
+    var summe = {}, gesamt = 0;
+    var zeilen = ARTIKEL.filter(function (a) { return m[a.name]; }).map(function (a) {
+      var tot = 0;
+      var zellen = spalten.map(function (g) {
+        var n = m[a.name][g] || 0; tot += n; summe[g] = (summe[g] || 0) + n;
+        return '<td class="zahl' + (n ? '' : ' leer') + '">' + (n || '–') + '</td>';
+      }).join('');
+      gesamt += tot;
+      return '<tr><td>' + esc(a.name) + '</td>' + zellen + '<td class="zahl"><strong>' + tot + '</strong></td></tr>';
+    }).join('');
+    inhalt.innerHTML =
+      '<h2>Gesamtbestellung 2026/27</h2>' +
+      '<p class="hilfe" style="margin-top:-6px">Diese Tabelle geht so an den Lieferanten: Stückzahlen pro Artikel und Grösse über alle Bestellungen.</p>' +
+      '<div class="werkzeuge"><span class="rechts">' + exportKnopf('Als Excel (CSV)') + '</span></div>' +
+      '<div class="tabelle-rahmen"><table class="tabelle"><thead><tr><th>Artikel</th>' +
+      spalten.map(function (g) { return '<th class="zahl">' + g + '</th>'; }).join('') + '<th class="zahl">Total Stück</th></tr></thead><tbody>' + zeilen +
+      '</tbody><tfoot><tr><td>Total</td>' + spalten.map(function (g) { return '<td class="zahl">' + summe[g] + '</td>'; }).join('') +
+      '<td class="zahl">' + gesamt + '</td></tr></tfoot></table></div>';
+  }
+
+  function adminPersonen() {
+    var liste = alleBestellungen().slice().sort(function (a, b) {
+      return (a.kst + a.nachname + a.vorname).localeCompare(b.kst + b.nachname + b.vorname, 'de-CH');
+    });
+    inhalt.innerHTML =
+      '<h2>Kleidung pro Person 2026/27</h2>' +
+      '<p class="hilfe" style="margin-top:-6px">Sortiert nach Kostenstelle und Name. Zum Ausdrucken für das Verteilen der Lieferung.</p>' +
+      '<div class="werkzeuge"><span class="rechts">' + exportKnopf('Alle Positionen als Excel (CSV)') + '</span></div>' +
+      '<div class="personen-raster">' + liste.map(function (b) {
+        return '<div class="person"><h3>' + esc(b.nachname + ' ' + b.vorname) + '</h3>' +
+          '<p class="meta">Kostenstelle ' + esc(b.kst + ' ' + b.kstBez) + ', ' + esc(b.art) + ', ' + esc(b.nr) + '</p>' +
+          '<table class="tabelle"><thead><tr><th>Artikel</th><th>Grösse</th><th class="zahl">Anzahl</th></tr></thead><tbody>' +
+          b.pos.map(function (p) { return '<tr><td>' + esc(p.artikel) + '</td><td>' + esc(p.groesse) + '</td><td class="zahl">' + p.anzahl + '</td></tr>'; }).join('') +
+          '</tbody></table></div>';
+      }).join('') + '</div>';
+  }
+
+  function adminArtikel() {
+    inhalt.innerHTML =
+      '<h2>Artikel</h2>' +
+      '<p class="hilfe" style="margin-top:-6px">In der echten Version lassen sich hier Artikel erfassen, Punkte und Grössen ändern und Artikel ausblenden. Ebenso Kostenstellen, Budgets, Freigabemonat und Bestellschluss.</p>' +
+      '<div class="tabelle-rahmen"><table class="tabelle"><thead><tr><th>Artikel</th><th class="zahl">Punkte</th><th>Grössen</th><th>Status</th></tr></thead><tbody>' +
+      ARTIKEL.map(function (a) {
+        return '<tr><td>' + esc(a.name) + '</td><td class="zahl">' + a.punkte + '</td><td>' + (a.groessen[0] === 'Standard' ? 'Standard' : 'XS bis XXL') + '</td><td><span class="marke">Sichtbar</span></td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  aufbauen();
+  aktualisieren();
+})();
+</script>
+</body>
+</html>
